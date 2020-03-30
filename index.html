@@ -62,7 +62,7 @@ function makeInfoBox(controlDiv, map) {
   controlText.style.fontSize = '100%';
   controlText.style.padding = '6px';
   controlText.textContent =
-      'Showing everyone who\'s visited in the last 10 minutes';
+      'Showing everyone who\'s visited in the last 24 hours';
   controlUI.appendChild(controlText);
 }
 
@@ -146,7 +146,7 @@ function makeInfoBox(controlDiv, map) {
       function initFirebase(heatmap) {
 
         // 10 minutes before current time.
-        var startTime = new Date().getTime() - (60 * 10 * 1000);
+        var startTime = new Date().getTime() - (24* 60 * 60 * 1000);
 
         // Reference to the clicks in Firebase.
         var clicks = firebase.database().ref('clicks');
