@@ -161,28 +161,8 @@ function makeInfoBox(controlDiv, map) {
 
             // Add the point to the heatmap.
             heatmap.getData().push(point);
-
-            // Request entries older than expiry time (24 hours).
-            var expiryMs = Math.max(24* 60 * 60 * 1000 - elapsedMs, 0);
-
-            // Set client timeout to remove the point after a certain time.
-            window.setTimeout(function() {
-              // Delete the old point from the database.
-              snapshot.ref.remove();
-            }, expiryMs);
           }
         );
-
-        // Remove old data from the heatmap when a point is removed from firebase.
-        clicks.on('child_removed', function(snapshot, prevChildKey) {
-          var heatmapData = heatmap.getData();
-          var i = 0;
-          while (snapshot.val().lat != heatmapData.getAt(i).lat()
-            || snapshot.val().lng != heatmapData.getAt(i).lng()) {
-            i++;
-          }
-          heatmapData.removeAt(i);
-        });
       }
 
       /**
