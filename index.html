@@ -145,7 +145,7 @@ function makeInfoBox(controlDiv, map) {
        */
       function initFirebase(heatmap) {
 
-        // 10 minutes before current time.
+        // 24 hours before current time.
         var startTime = new Date().getTime() - (24* 60 * 60 * 1000);
 
         // Reference to the clicks in Firebase.
@@ -162,8 +162,8 @@ function makeInfoBox(controlDiv, map) {
             // Add the point to the heatmap.
             heatmap.getData().push(point);
 
-            // Request entries older than expiry time (10 minutes).
-            var expiryMs = Math.max(60 * 10 * 1000 - elapsedMs, 0);
+            // Request entries older than expiry time (24 hours).
+            var expiryMs = Math.max(24* 60 * 60 * 1000 - elapsedMs, 0);
 
             // Set client timeout to remove the point after a certain time.
             window.setTimeout(function() {
