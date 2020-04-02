@@ -92,14 +92,86 @@ function makeInfoBox(controlDiv, map) {
         var map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 0, lng: 0},
           zoom: 3,
-          styles: [{
-            featureType: 'poi',
-            stylers: [{ visibility: 'off' }]  // Turn off POI.
-          },
-          {
-            featureType: 'transit.station',
-            stylers: [{ visibility: 'off' }]  // Turn off bus, train stations etc.
-          }],
+          styles: [
+            {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+            {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+            {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+            {
+              featureType: 'administrative.locality',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'poi',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'poi.park',
+              elementType: 'geometry',
+              stylers: [{color: '#263c3f'}]
+            },
+            {
+              featureType: 'poi.park',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#6b9a76'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'geometry',
+              stylers: [{color: '#38414e'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'geometry.stroke',
+              stylers: [{color: '#212a37'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#9ca5b3'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'geometry',
+              stylers: [{color: '#746855'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'geometry.stroke',
+              stylers: [{color: '#1f2835'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#f3d19c'}]
+            },
+            {
+              featureType: 'transit',
+              elementType: 'geometry',
+              stylers: [{color: '#2f3948'}]
+            },
+            {
+              featureType: 'transit.station',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{color: '#17263c'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#515c6d'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'labels.text.stroke',
+              stylers: [{color: '#17263c'}]
+            }
+          ],
           disableDoubleClickZoom: true,
           streetViewControl: false,
         });
@@ -133,7 +205,11 @@ function makeInfoBox(controlDiv, map) {
         var heatmap = new google.maps.visualization.HeatmapLayer({
           data: [],
           map: map,
-          radius: 16
+          radius: 14,
+          gradient: [
+            'rgba(255, 255, 0, 0)',
+            'rgba(255, 255, 0, 1)'
+            ]
         });
 
         initAuthentication(initFirebase.bind(undefined, heatmap));
@@ -166,46 +242,17 @@ function makeInfoBox(controlDiv, map) {
       }
 
       /**
-       * Updates the last_message/ path with the current timestamp.
-       * @param {function(Date)} addClick After the last message timestamp has been updated,
-       *     this function is called with the current timestamp to add the
-       *     click to the firebase.
-       */
-      function getTimestamp(addClick) {
-        // Reference to location for saving the last click time.
-        var ref = firebase.database().ref('last_message/' + data.sender);
-
-        ref.onDisconnect().remove();  // Delete reference from firebase on disconnect.
-
-        // Set value to timestamp.
-        ref.set(firebase.database.ServerValue.TIMESTAMP, function(err) {
-          if (err) {  // Write to last message was unsuccessful.
-            console.log(err);
-          } else {  // Write to last message was successful.
-            ref.once('value', function(snap) {
-              addClick(snap.val());  // Add click with same timestamp.
-            }, function(err) {
-              console.warn(err);
-            });
-          }
-        });
-      }
-
-      /**
        * Adds a click to firebase.
        * @param {Object} data The data to be added to firebase.
        *     It contains the lat, lng, sender and timestamp.
        */
       function addToFirebase(data) {
-        getTimestamp(function(timestamp) {
-          // Add the new timestamp to the record data.
-          data.timestamp = timestamp;
-          var ref = firebase.database().ref('clicks').push(data, function(err) {
-            if (err) {  // Data was not written to firebase.
-              console.warn(err);
-            }
-          });
-        });
+        data.timestamp = firebase.database.ServerValue.TIMESTAMP;
+        var ref = firebase.database().ref('clicks').push(data, function(err) {
+          if (err) {  // Data was not written to firebase.
+            console.warn(err);
+          }
+      });
       }
 
       function handleLocationError(browserHasGeolocation, infoWindow, pos) {
